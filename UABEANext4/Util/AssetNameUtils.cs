@@ -156,7 +156,6 @@ public static class AssetNameUtils
         return $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}{ext}";
     }
 
-
     public static string GetAssetFileName(AssetInst asset, string assetNameOverride, string ext)
     {
         string assetName = PathUtils.ReplaceInvalidPathChars(assetNameOverride);
