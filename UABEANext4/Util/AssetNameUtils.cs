@@ -145,8 +145,17 @@ public static class AssetNameUtils
         GetDisplayNameFast(workspace, asset, false, out string? assetName, out string _);
         assetName = GetFallbackName(asset, assetName);
         assetName = PathUtils.ReplaceInvalidPathChars(assetName);
+
+        // limit asset name length to max 150 chars
+        const int maxAssetNameLen = 150;
+        if (assetName.Length > maxAssetNameLen)
+        {
+            assetName = assetName.Substring(assetName.Length - maxAssetNameLen);
+        }
+
         return $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}{ext}";
     }
+
 
     public static string GetAssetFileName(AssetInst asset, string assetNameOverride, string ext)
     {
