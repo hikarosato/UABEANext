@@ -225,13 +225,18 @@ public partial class AssetDocumentViewModel : Document
 
         if (scriptIndex != ushort.MaxValue)
         {
-            var typeList = _typeRefLookup[assetInst.FileInstance];
-
-            // just in case, let's check the bounds here
-            if (scriptIndex < typeList.Length)
-                baseTypeEntry.ScriptRef = typeList[scriptIndex];
-            else
+            if (!_typeRefLookup.TryGetValue(assetInst.FileInstance, out var typeList))
+            {
                 baseTypeEntry.ScriptRef = null;
+            }
+            else if (scriptIndex < typeList.Length)
+            {
+                baseTypeEntry.ScriptRef = typeList[scriptIndex];
+            }
+            else
+            {
+                baseTypeEntry.ScriptRef = null;
+            }
         }
         else
         {
@@ -287,9 +292,34 @@ public partial class AssetDocumentViewModel : Document
         CollectionView = new DataGridCollectionView(Items);
         CollectionView.Filter = SetDataGridFilter(SearchText);
 
-        _filterTypes = null;
-        _filterTypesFiltered = [];
-        _typeRefLookup = [];
+        UpdateTypeRefLookup(fileInsts);
+    }
+
+    private void UpdateTypeRefLookup(List<AssetsFileInstance> fileInsts)
+    {
+        if (_filterTypesFiltered.Count == 0)
+        {
+            _typeRefLookup.Clear();
+            return;
+        }
+
+        var newLookup = new Dictionary<AssetsFileInstance, AssetTypeReference?[]>();
+
+        foreach (var fileInst in fileInsts)
+        {
+            var scriptTypes = fileInst.file.Metadata.ScriptTypes;
+            var scriptRefArray = new AssetTypeReference?[scriptTypes.Count];
+
+            for (int i = 0; i < scriptTypes.Count; i++)
+            {
+                AssetTypeReference typeRef = AssetHelper.GetAssetsFileScriptInfo(Workspace.Manager, fileInst, i);
+                scriptRefArray[i] = typeRef;
+            }
+
+            newLookup[fileInst] = scriptRefArray;
+        }
+
+        _typeRefLookup = newLookup;
     }
 
     private void LoadContainersIntoInfos(AssetsFileInstance fileInst, IList<AssetFileInfo> fileInfos)
@@ -447,6 +477,8 @@ public partial class AssetDocumentViewModel : Document
             var fileToDirty = Workspace.ItemLookup[fileName];
             Workspace.Dirty(fileToDirty);
         }
+
+       await Load(FileInsts);
     }
 
     public async void ImportSingle(AssetInst asset)
@@ -515,6 +547,8 @@ public partial class AssetDocumentViewModel : Document
 
         var fileToDirty = Workspace.ItemLookup[asset.FileInstance.name];
         Workspace.Dirty(fileToDirty);
+
+        await Load(FileInsts);
     }
 
     public async void Export()
@@ -727,19 +761,18 @@ public partial class AssetDocumentViewModel : Document
     {
         var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
 
-        // if not generated already, find all unique types to filter on
         _filterTypes ??= SelectTypeFilterViewModel.MakeTypeFilterTypes(Workspace, Items);
 
         var result = await dialogService.ShowDialog(new SelectTypeFilterViewModel(_filterTypes));
         if (result == null)
             return;
 
-        // set filtered list
         _filterTypesFiltered = result.ToHashSet();
 
-        // also generate a list of file instance + script index -> actual script for quick lookup
-        if (_typeRefLookup.Count == 0)
+        if (_filterTypesFiltered.Count > 0)
         {
+            _typeRefLookup.Clear();
+
             foreach (var fileInst in FileInsts)
             {
                 var scriptTypes = fileInst.file.Metadata.ScriptTypes;
@@ -748,20 +781,17 @@ public partial class AssetDocumentViewModel : Document
                 for (int i = 0; i < scriptTypes.Count; i++)
                 {
                     AssetTypeReference typeRef = AssetHelper.GetAssetsFileScriptInfo(Workspace.Manager, fileInst, i);
-                    if (typeRef == null)
-                    {
-                        scriptRefArray[i] = null;
-                        continue;
-                    }
-
                     scriptRefArray[i] = typeRef;
                 }
 
                 _typeRefLookup[fileInst] = scriptRefArray;
             }
         }
+        else
+        {
+            _typeRefLookup.Clear();
+        }
 
-        // reload filter
         CollectionView.Filter = SetDataGridFilter(SearchText);
     }
 

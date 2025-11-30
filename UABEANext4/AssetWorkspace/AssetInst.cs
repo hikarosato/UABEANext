@@ -10,8 +10,6 @@ public class AssetInst : AssetFileInfo, INotifyPropertyChanged
 {
     public string? AssetName { get; set; }
     public string? DisplayContainer { get; set; }
-
-    [Browsable(false)]
     public AssetsFileInstance FileInstance { get; }
 
     public AssetClassID Type => (AssetClassID)TypeId;

@@ -13,7 +13,7 @@
         x:DataType="vm:MainViewModel"
         x:CompileBindings="True"
         Icon="/Assets/logo-new.ico"
-        Title="UABEAvalonia by nesrak1 | Hikaro Edition 0.0.1"
+        Title="UABEAvalonia by nesrak1 | Hikaro Edition 0.0.1b"
         Name="MainWindowName"
         ExtendClientAreaToDecorationsHint="{Binding UsesChrome}"
         ExtendClientAreaChromeHints="{Binding ChromeHints}"
