@@ -146,8 +146,8 @@ public static class AssetNameUtils
         assetName = GetFallbackName(asset, assetName);
         assetName = PathUtils.ReplaceInvalidPathChars(assetName);
 
-        // limit asset name length to max 150 chars
-        const int maxAssetNameLen = 150;
+        // limit asset name length to max 100 chars
+        const int maxAssetNameLen = 100;
         if (assetName.Length > maxAssetNameLen)
         {
             assetName = assetName.Substring(assetName.Length - maxAssetNameLen);
