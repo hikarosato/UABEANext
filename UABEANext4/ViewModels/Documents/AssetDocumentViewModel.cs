@@ -289,8 +289,18 @@ public partial class AssetDocumentViewModel : Document
         Items = items;
         FileInsts = fileInsts;
 
+        var oldSortDescriptions = CollectionView?.SortDescriptions.ToList();
+
         CollectionView = new DataGridCollectionView(Items);
         CollectionView.Filter = SetDataGridFilter(SearchText);
+
+        if (oldSortDescriptions != null && oldSortDescriptions.Count > 0)
+        {
+            foreach (var sortDesc in oldSortDescriptions)
+            {
+                CollectionView.SortDescriptions.Add(sortDesc);
+            }
+        }
 
         UpdateTypeRefLookup(fileInsts);
     }
