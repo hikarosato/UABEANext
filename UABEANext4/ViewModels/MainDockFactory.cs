@@ -69,16 +69,16 @@ internal class MainDockFactory : Factory
             ),
             Alignment = Alignment.Left,
             GripMode = GripMode.Visible,
-            Proportion = 0.25
+            Proportion = 0.20
         };
 
         var inspectorDock = new ToolDock
         {
-            ActiveDockable = _inspectorToolViewModel,
+            ActiveDockable = _previewerToolViewModel,
             VisibleDockables = CreateList<IDockable>
             (
-                _inspectorToolViewModel,
-                _previewerToolViewModel
+                _previewerToolViewModel,
+                _inspectorToolViewModel
             ),
             Alignment = Alignment.Left,
             GripMode = GripMode.Visible,
