@@ -17,7 +17,8 @@
         Name="MainWindowName"
         ExtendClientAreaToDecorationsHint="{Binding UsesChrome}"
         ExtendClientAreaChromeHints="{Binding ChromeHints}"
-        DragDrop.AllowDrop="True">
+        DragDrop.AllowDrop="True"
+		TransparencyLevelHint="None" SystemDecorations="Full">
   <Design.DataContext>
     <vm:MainViewModel/>
   </Design.DataContext>

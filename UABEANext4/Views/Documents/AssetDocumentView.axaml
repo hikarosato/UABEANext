@@ -75,7 +75,7 @@
     </UniformGrid>
 
     <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
-      <TextBox Grid.Column="0" Text="{Binding SearchText}" Watermark="Asset name search" />
+      <TextBox Grid.Column="0" Text="{Binding SearchText}" Watermark="Asset name and path ID search" />
       <Button Grid.Column="1">
         <StackPanel Orientation="Horizontal">
           <Image Source="avares://UABEANext4/Assets/Icons/action-filter.png" Margin="0,0,3,0" />
