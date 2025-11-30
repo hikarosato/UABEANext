@@ -51,7 +51,7 @@ public class ExportFontOption : IUavPluginOption
         foreach (var asset in selection)
         {
             var errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
-            var textBaseField = workspace.GetBaseField(asset);
+            var textBaseField = FontHelper.GetByteArrayFont(workspace, asset);
             if (textBaseField == null)
             {
                 errorBuilder.AppendLine($"[{errorAssetName}]: failed to read");
@@ -59,13 +59,13 @@ public class ExportFontOption : IUavPluginOption
             }
 
             var name = textBaseField["m_Name"].AsString;
-            var byteData = textBaseField["m_Script"].AsByteArray;
+            var byteData = textBaseField["m_FontData"]["Array"].AsByteArray;
 
             var isOtf = FontHelper.IsDataOtf(byteData);
             var extension = isOtf ? ".otf" : ".ttf";
 
             var assetName = PathUtils.ReplaceInvalidPathChars(name);
-            var filePath = AssetNameUtils.GetAssetFileName(asset, assetName, extension);
+            var filePath = Path.Combine(dir, AssetNameUtils.GetAssetFileName(asset, assetName, extension));
 
             File.WriteAllBytes(filePath, byteData);
         }
@@ -83,7 +83,7 @@ public class ExportFontOption : IUavPluginOption
     public async Task<bool> SingleExport(Workspace workspace, IUavPluginFunctions funcs, IList<AssetInst> selection)
     {
         var asset = selection[0];
-        var textBaseField = workspace.GetBaseField(asset);
+        var textBaseField = FontHelper.GetByteArrayFont(workspace, asset);
         if (textBaseField == null)
         {
             await funcs.ShowMessageDialog("Error", "Failed to read Font");
@@ -91,7 +91,7 @@ public class ExportFontOption : IUavPluginOption
         }
 
         var name = textBaseField["m_Name"].AsString;
-        var byteData = textBaseField["m_Script"].AsByteArray;
+        var byteData = textBaseField["m_FontData"]["Array"].AsByteArray;
 
         var isOtf = FontHelper.IsDataOtf(byteData);
         var extension = isOtf ? "otf" : "ttf";
@@ -101,9 +101,9 @@ public class ExportFontOption : IUavPluginOption
         {
             Title = "Save font",
             FileTypeChoices = new List<FilePickerFileType>()
-            {
-                new FilePickerFileType($"{extension.ToUpper()} file (*.{extension})") { Patterns = new List<string>() { "*." + extension } },
-            },
+        {
+            new FilePickerFileType($"{extension.ToUpper()} file (*.{extension})") { Patterns = new List<string>() { "*." + extension } },
+        },
             SuggestedFileName = AssetNameUtils.GetAssetFileName(asset, assetName, string.Empty),
             DefaultExtension = extension
         });
